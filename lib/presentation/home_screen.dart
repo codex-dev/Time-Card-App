@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:time_card_app/database/database_service.dart';
+import 'package:time_card_app/database/shifts_db.dart';
+import 'package:time_card_app/model/shift.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,8 +13,54 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   DateTime _selectedDate = DateTime.now();
-  late String dateYMD = DateFormat("yyyy/MM/dd").format(_selectedDate);
-  late DailyRecord dailyRecord = DailyRecord(dateYMD, 0, 0.0, []);
+  late String dateYMD;
+  late final ShiftsDB shiftsDB;
+  late List<Shift> listAllShifts;
+
+  // late DailyRecord dailyRecord = DailyRecord(dateYMD, 0, 0.0, []);
+
+  @override
+  void initState() {
+    super.initState();
+    shiftsDB = ShiftsDB();
+    dateYMD = DateFormat("yyyy/MM/dd").format(_selectedDate);
+
+    testDbOperations();
+  }
+
+  Future<void> testDbOperations() async {
+    shiftsDB.deleteShift(1);
+    
+    listAllShifts = await shiftsDB.getAllShiftsByDate(workDate: dateYMD);
+    debugPrint(
+        '// Found ${listAllShifts.length} shift${listAllShifts.length > 1 ? 's' : ''} in $dateYMD');
+
+
+    // shiftsDB.addShift(
+    //     workDate: dateYMD,
+    //     employeeName: 'Sahan',
+    //     employeeEmail: 'sahan@ft.lk',
+    //     checkInTime: '09:15');
+
+    // listAllShifts = await shiftsDB.getAllShiftsByDate(workDate: dateYMD);
+    // debugPrint(
+    //     '// Found ${listAllShifts.length} shift${listAllShifts.length > 1 ? 's' : ''} in $dateYMD');
+
+    // shiftsDB.updateShift(
+    //     shiftId: 2,
+    //     checkInTime: '10:00',
+    //     checkOutTime: '18:00',
+    //     hourlyRate: 23.5,
+    //     hours: 8,
+    //     payment: 8 * 23.5);
+    // listAllShifts = await shiftsDB.getAllShiftsByDate(workDate: dateYMD);
+    // debugPrint(
+    //     '// Found ${listAllShifts.length} shift${listAllShifts.length > 1 ? 's' : ''} in $dateYMD');
+
+    for (var sh in listAllShifts) {
+      debugPrint(sh.toString());
+    }
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -68,14 +116,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-   addPrefix(int value) => value < 10 ? "0$value" : value;
+  addPrefix(int value) => value < 10 ? "0$value" : value;
 
-  double _calculateTotalWorkHours() {
-    double totalHours = 0;
-    for (var shift in dailyRecord.shiftsList) {
-      totalHours +=
-          shift.checkOutTime.difference(shift.checkInTime).inHours.toDouble();
-    }
-    return totalHours;
-  }
+  // double _calculateTotalWorkHours() {
+  //   double totalHours = 0;
+  //   for (var shift in dailyRecord.shiftsList) {
+  //     totalHours +=
+  //         shift.checkOutTime.difference(shift.checkInTime).inHours.toDouble();
+  //   }
+  //   return totalHours;
+  // }
 }

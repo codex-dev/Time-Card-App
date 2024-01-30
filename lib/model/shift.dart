@@ -30,4 +30,21 @@ class Shift {
       hours: map['hours']?.toInt() ?? 0,
       hourlyRate: map['hourly_rate']?.toDouble() ?? 0,
       payment: map['payment']?.toDouble() ?? 0);
+
+      @override
+  String toString() {
+    return '''
+    {
+      shift_id : $shiftId,
+      work_date : $workDate,
+      employee_name : $employeeName,
+      emplyee_email : $employeeEmail,
+      check_in_time : $checkInTime,
+      check_out_time : $checkOutTime,
+      hours : $hours,
+      hourly_rate : $hourlyRate,
+      payment : $payment
+    }
+    ''';
+  }
 }

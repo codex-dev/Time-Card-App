@@ -3,39 +3,39 @@ import 'package:time_card_app/database/database_service.dart';
 import 'package:time_card_app/model/shift.dart';
 
 class ShiftsDB {
+
   final tableName = 'shift';
 
   Future<void> createTable(Database database) async {
-    await database.execute("""CREATE TABLE IF NOT EXISTS $tableName (
-        "shift_id" INTEGER NOT NULL,
-        "work_date" TEXT NOT NULL,
-        "employee_name" TEXT NOT NULL,
-        "employee_email" TEXT NOT NULL,
-        "check_in_time" TEXT NOT NULL,
-        "check_out_time" TEXT,
-        "hours" INTEGER,
-        "hourly_rate" DOUBLE,
-        "payment" DOUBLE,
-        PRIMARY KEY("shift_id", AUTOINCREMENT)
-      ); 
-      """);
+    await database.execute('''
+CREATE TABLE IF NOT EXISTS $tableName(
+shift_id INTEGER PRIMARY KEY AUTOINCREMENT,
+work_date TEXT NOT NULL, 
+employee_name TEXT NOT NULL,
+employee_email TEXT NOT NULL,
+check_in_time TEXT NOT NULL,
+check_out_time TEXT,
+hours INTEGER,
+hourly_rate DOUBLE,
+payment DOUBLE
+);''');
   }
 
-  Future<int> addShift(
+   Future<int> addShift(
       {required String workDate,
       required String employeeName,
       required String employeeEmail,
       required String checkInTime}) async {
-    final database = await DatabaseService().database;
+    final database = await DatabaseService.instance.database;
     return await database.rawInsert(
-        '''INSERT INTO $tableName (work_date, employee_name, employee_email, check_in_time) VALUES (?,?,?,?)''',
+        'INSERT INTO $tableName (work_date, employee_name, employee_email, check_in_time) VALUES (?,?,?,?)',
         [workDate, employeeName, employeeEmail, checkInTime]);
   }
 
   Future<List<Shift>> getAllShiftsByDate({required String workDate}) async {
-    final database = await DatabaseService().database;
+    final database = await DatabaseService.instance.database;
     final shifts = await database.rawQuery(
-        '''SELECT * FROM $tableName WHERE work_date=? ORDER BY shift_id ASC''',
+        'SELECT * FROM $tableName WHERE work_date=? ORDER BY shift_id ASC',
         [workDate]);
     return shifts.map((shift) => Shift.fromSqfliteDatabase(shift)).toList();
   }
@@ -47,7 +47,7 @@ class ShiftsDB {
       int? hours,
       double? hourlyRate,
       double? payment}) async {
-    final database = await DatabaseService().database;
+    final database = await DatabaseService.instance.database;
     return await database.update(
         tableName,
         {
@@ -63,8 +63,8 @@ class ShiftsDB {
   }
 
   Future<void> deleteShift(int shiftId) async {
-    final database = await DatabaseService().database;
+    final database = await DatabaseService.instance.database;
     await database
-        .rawDelete('''DELETE FROM $tableName WHERE shift_id = ?''', [shiftId]);
+        .rawDelete('DELETE FROM $tableName WHERE shift_id = ?', [shiftId]);
   }
 }
