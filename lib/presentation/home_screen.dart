@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:time_card_app/database/database_service.dart';
+import 'package:time_card_app/common/enums/form_action_enum.dart';
 import 'package:time_card_app/database/shifts_db.dart';
 import 'package:time_card_app/model/shift.dart';
+import 'package:time_card_app/presentation/widgets/shifts_list_item.dart';
+import 'package:time_card_app/shared/shift_bottom_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,47 +19,14 @@ class _HomeScreenState extends State<HomeScreen> {
   late String dateDisplay;
   late final ShiftsDB shiftsDB;
   List<Shift> listAllShifts = [];
+  int totalHours = 0;
+  double laborCost = 0;
 
   @override
   void initState() {
     super.initState();
     shiftsDB = ShiftsDB();
     changeSelectedDate(DateTime.now());
-
-    // testDbOperations();
-  }
-
-  Future<void> testDbOperations() async {
-    shiftsDB.deleteShift(1);
-
-    listAllShifts = await shiftsDB.getAllShiftsByDate(workDate: dateYMD);
-    debugPrint(
-        '// Found ${listAllShifts.length} shift${listAllShifts.length > 1 ? 's' : ''} in $dateYMD');
-
-    // shiftsDB.addShift(
-    //     workDate: dateYMD,
-    //     employeeName: 'Sahan',
-    //     employeeEmail: 'sahan@ft.lk',
-    //     checkInTime: '09:15');
-
-    // listAllShifts = await shiftsDB.getAllShiftsByDate(workDate: dateYMD);
-    // debugPrint(
-    //     '// Found ${listAllShifts.length} shift${listAllShifts.length > 1 ? 's' : ''} in $dateYMD');
-
-    // shiftsDB.updateShift(
-    //     shiftId: 2,
-    //     checkInTime: '10:00',
-    //     checkOutTime: '18:00',
-    //     hourlyRate: 23.5,
-    //     hours: 8,
-    //     payment: 8 * 23.5);
-    // listAllShifts = await shiftsDB.getAllShiftsByDate(workDate: dateYMD);
-    // debugPrint(
-    //     '// Found ${listAllShifts.length} shift${listAllShifts.length > 1 ? 's' : ''} in $dateYMD');
-
-    for (var sh in listAllShifts) {
-      debugPrint(sh.toString());
-    }
   }
 
   Future<void> selectDate(BuildContext context) async {
@@ -80,9 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showShiftDetailsForm(context);
-        },
+        onPressed: () => ShiftBottomSheet.showShiftDetailsForm(context, FormAction.addShift),
         child: const Icon(Icons.add),
       ),
       body: Container(
@@ -91,140 +58,128 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_rounded),
-                    onPressed: () {
-                      changeSelectedDate(
-                          _selectedDate.subtract(const Duration(days: 1)));
-                    },
-                  ),
-                  GestureDetector(
-                      onTap: () => selectDate(context),
-                      child: Text(
-                        dateDisplay,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      )),
-                  IconButton(
-                    icon: const Icon(Icons.arrow_forward_ios_rounded),
-                    onPressed: () {
-                      changeSelectedDate(
-                          _selectedDate.add(const Duration(days: 1)));
-                    },
-                  ),
-                ],
-              ),
+              showSelectedDateBar(context),
               const SizedBox(
                 height: 30,
               ),
-              if (listAllShifts.isNotEmpty) ...[
-                ListView.separated(
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      Shift shiftItem = listAllShifts[index];
-
-                      return displayShiftItem(shiftItem, context);
-                    },
-                    separatorBuilder: (context, index) => const SizedBox(
-                          height: 10,
-                        ),
-                    itemCount: listAllShifts.length)
-              ] else ...[
-                const Text(
-                  'No shifts found for the day.',
-                  style: TextStyle(
-                      fontSize: 16, color: Color.fromARGB(255, 121, 121, 121)),
-                )
-              ]
+              showInsightsBar(context),
+              const SizedBox(
+                height: 20,
+              ),
+              showShiftsList()
             ],
           )),
     );
   }
 
-  Container displayShiftItem(Shift shiftItem, BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 221, 221, 221),
-          borderRadius: BorderRadius.circular(10)),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                shiftItem.employeeName,
-                textAlign: TextAlign.start,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              Text(
-                shiftItem.employeeEmail,
-                textAlign: TextAlign.start,
-                style: const TextStyle(
-                    fontWeight: FontWeight.normal, fontSize: 16),
-              )
-            ],
-          ),
-          Text(
-            '${shiftItem.checkInTime} - ${(shiftItem.checkOutTime == null || shiftItem.checkOutTime!.isEmpty) ? 'now' : shiftItem.checkOutTime}',
-            textAlign: TextAlign.start,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          IconButton(
-            icon: const Icon(Icons.edit_note_outlined),
-            onPressed: () => showShiftDetailsForm(context),
-          )
-        ],
-      ),
+  Row showSelectedDateBar(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        IconButton(
+          icon: const Icon(Icons.arrow_back_ios_rounded),
+          onPressed: () {
+            changeSelectedDate(_selectedDate.subtract(const Duration(days: 1)));
+          },
+        ),
+        GestureDetector(
+            onTap: () => selectDate(context),
+            child: Text(
+              dateDisplay,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            )),
+        IconButton(
+          icon: const Icon(Icons.arrow_forward_ios_rounded),
+          onPressed: () {
+            changeSelectedDate(_selectedDate.add(const Duration(days: 1)));
+          },
+        ),
+      ],
     );
   }
 
-  void changeSelectedDate(DateTime newDate) async {
+  Row showInsightsBar(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 221, 221, 221),
+                borderRadius: BorderRadius.circular(10)),
+            child: Text(
+              '$totalHours\nTotal Hours',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
+        const SizedBox(
+          width: 15,
+        ),
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 221, 221, 221),
+                borderRadius: BorderRadius.circular(10)),
+            child: Text(
+              '\$${laborCost.toStringAsFixed(2)}\nLabor Cost',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  void changeSelectedDate(DateTime newDate) {
     _selectedDate = newDate;
     dateYMD = DateFormat('yyyy/MM/dd').format(_selectedDate);
     dateDisplay = DateFormat('E, dd MMMM yyyy').format(_selectedDate);
 
+    loadShiftsList();
+  }
+
+  void loadShiftsList() async {
+    totalHours = 0;
+    laborCost = 0;
+
     listAllShifts = await shiftsDB.getAllShiftsByDate(workDate: dateYMD);
+
+    for (var shiftItem in listAllShifts) {
+      totalHours += shiftItem.hours ?? 0;
+      laborCost += shiftItem.payment ?? 0;
+
+      debugPrint(shiftItem.toString());
+    }
 
     setState(() {});
   }
 
-  Future<void> showShiftDetailsForm(BuildContext context) {
-    return showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          return SizedBox(
-            height: 200,
-            child: Center(
-              child: ElevatedButton(
-                child: const Text('Close'),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+  Widget showShiftsList() {
+    if (listAllShifts.isNotEmpty) {
+      return ListView.separated(
+          scrollDirection: Axis.vertical,
+          shrinkWrap: true,
+          itemBuilder: (context, index) {
+            Shift shiftItem = listAllShifts[index];
+
+            return ShiftsListItem(shift: shiftItem);
+          },
+          separatorBuilder: (context, index) => const SizedBox(
+                height: 10,
               ),
-            ),
-          );
-        });
+          itemCount: listAllShifts.length);
+    }
+
+    return const Text(
+      'No shifts found for the day.',
+      style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 121, 121, 121)),
+    );
   }
-
-  addPrefix(int value) => value < 10 ? "0$value" : value;
-
-  // double _calculateTotalWorkHours() {
-  //   double totalHours = 0;
-  //   for (var shift in dailyRecord.shiftsList) {
-  //     totalHours +=
-  //         shift.checkOutTime.difference(shift.checkInTime).inHours.toDouble();
-  //   }
-  //   return totalHours;
-  // }
 }

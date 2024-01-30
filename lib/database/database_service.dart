@@ -1,7 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:time_card_app/database/shifts_db.dart';
-import 'package:time_card_app/model/shift.dart';
 
 class DatabaseService {
   final dbName = 'shifts.db';

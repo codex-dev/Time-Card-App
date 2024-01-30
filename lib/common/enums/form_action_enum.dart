@@ -1,0 +1,1 @@
+enum FormAction { addShift, updateShift }
