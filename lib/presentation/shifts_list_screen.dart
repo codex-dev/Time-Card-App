@@ -14,9 +14,8 @@ class ShiftsListScreen extends StatefulWidget {
 }
 
 class _ShiftsListScreenState extends State<ShiftsListScreen> {
-  
   late final ShiftsDB shiftsDB;
-  
+
   late DateTime _selectedDate;
   late String dateYMD;
   late String dateDisplay;
@@ -31,7 +30,7 @@ class _ShiftsListScreenState extends State<ShiftsListScreen> {
     super.initState();
 
     shiftsDB = ShiftsDB();
-    
+
     changeSelectedDate(DateTime.now());
   }
 
@@ -56,10 +55,12 @@ class _ShiftsListScreenState extends State<ShiftsListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ShiftDetailsScreen(
-                    formAction: FormAction.addShift, shift: Shift()))),
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ShiftDetailsScreen(
+                        formAction: FormAction.addShift,
+                        shift: Shift(workDate: dateYMD))))
+            .then((value) => loadShiftsList()),
         child: const Icon(Icons.add),
       ),
       body: Container(
@@ -118,7 +119,7 @@ class _ShiftsListScreenState extends State<ShiftsListScreen> {
           child: Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 221, 221, 221),
+                color: const Color.fromARGB(255, 168, 177, 226),
                 borderRadius: BorderRadius.circular(10)),
             child: Text(
               '$totalHours\nTotal Hours',
@@ -134,7 +135,7 @@ class _ShiftsListScreenState extends State<ShiftsListScreen> {
           child: Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 221, 221, 221),
+                color: const Color.fromARGB(255, 168, 177, 226),
                 borderRadius: BorderRadius.circular(10)),
             child: Text(
               '\$${laborCost.toStringAsFixed(2)}\nLabor Cost',
@@ -174,6 +175,11 @@ class _ShiftsListScreenState extends State<ShiftsListScreen> {
     setState(() {});
   }
 
+  refreshList() async {
+    //NOTE: this doesn't work atm
+    await loadShiftsList();
+  }
+
   Widget showShiftsList() {
     if (listAllShifts.isNotEmpty) {
       return RefreshIndicator(
@@ -184,7 +190,8 @@ class _ShiftsListScreenState extends State<ShiftsListScreen> {
             itemBuilder: (context, index) {
               Shift shiftItem = listAllShifts[index];
 
-              return ShiftsListItem(shift: shiftItem);
+              return ShiftsListItem(
+                  shift: shiftItem, funcRefreshList: refreshList);
             },
             separatorBuilder: (context, index) => const SizedBox(
                   height: 10,

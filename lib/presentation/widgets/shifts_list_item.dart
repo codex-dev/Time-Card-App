@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:time_card_app/common/enums/form_action_enum.dart';
+import 'package:time_card_app/common/extensions/string_extension.dart';
 import 'package:time_card_app/model/shift.dart';
 import 'package:time_card_app/presentation/shift_details_screen.dart';
 
 class ShiftsListItem extends StatelessWidget {
   final Shift shift;
-  const ShiftsListItem({super.key, required this.shift});
+  final VoidCallback funcRefreshList;
+  const ShiftsListItem(
+      {super.key, required this.shift, required this.funcRefreshList});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-          color: Color.fromARGB(255, 225, 225, 225),
+          color: const Color.fromARGB(255, 225, 225, 225),
           borderRadius: BorderRadius.circular(10)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -37,7 +40,7 @@ class ShiftsListItem extends StatelessWidget {
             ],
           ),
           Text(
-            '${shift.checkInTime} - ${(shift.checkOutTime == null || shift.checkOutTime!.isEmpty) ? 'now' : shift.checkOutTime}',
+            '${shift.checkInTime} - ${shift.checkOutTime.isNullOrEmpty ? 'now' : shift.checkOutTime}',
             textAlign: TextAlign.start,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
@@ -48,7 +51,8 @@ class ShiftsListItem extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                         builder: (context) => ShiftDetailsScreen(
-                            formAction: FormAction.updateShift, shift: shift)));
+                            formAction: FormAction.updateShift,
+                            shift: shift))).then((value) => funcRefreshList);
               })
         ],
       ),

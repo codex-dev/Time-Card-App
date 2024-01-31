@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:time_card_app/common/enums/form_action_enum.dart';
 import 'package:time_card_app/common/enums/toast_type_enum.dart';
-import 'package:time_card_app/common/extensions/custom_time_format.dart';
+import 'package:time_card_app/common/extensions/time_of_day_extension.dart';
+import 'package:time_card_app/common/regex_patterns.dart';
 import 'package:time_card_app/database/shifts_db.dart';
 import 'package:time_card_app/model/shift.dart';
 
@@ -19,10 +20,10 @@ class ShiftDetailsScreen extends StatefulWidget {
 class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
   late final ShiftsDB shiftsDB;
 
-  String title = '';
   bool isUpdateShift = false;
+  late Shift currentShift;
 
-  final shiftDetailsFormKey = GlobalKey<FormState>();
+  final _shiftDetailsFormKey = GlobalKey<FormState>();
 
   TimeOfDay? _selectedCheckInTime;
   TimeOfDay? _selectedCheckOutTime;
@@ -36,36 +37,29 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
     super.initState();
 
     shiftsDB = ShiftsDB();
-
-    _controllerEmployeeName = TextEditingController();
-    _controllerEmployeeEmail = TextEditingController();
-    _controllerHourlyRate = TextEditingController();
   }
 
   @override
   Widget build(BuildContext context) {
-    Shift currentShift = widget.shift;
+    currentShift = widget.shift;
+    isUpdateShift = widget.formAction == FormAction.updateShift;
 
-    switch (widget.formAction) {
-      case FormAction.addShift:
-        title = 'New Time Card';
-        isUpdateShift = false;
-        break;
-      case FormAction.updateShift:
-        title = 'Time Card Details';
-        isUpdateShift = true;
-        break;
-    }
+    _controllerEmployeeName =
+        TextEditingController(text: currentShift.employeeName);
+    _controllerEmployeeEmail =
+        TextEditingController(text: currentShift.employeeEmail);
+    _controllerHourlyRate =
+        TextEditingController(text: currentShift.hourlyRate?.toString());
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text(isUpdateShift ? 'Time Card Details' : 'New Time Card'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
         child: Form(
-            key: shiftDetailsFormKey,
+            key: _shiftDetailsFormKey,
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,32 +72,43 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                     ),
                     keyboardType: TextInputType.name,
                     maxLength: 20,
-                    initialValue: null,
-                    enabled: true,
-
-                    // inputFormatters: [],
-                    // validator: ,
-                    // onChanged: ,
-                    // onFieldSubmitted: ,
+                    enabled: isUpdateShift ? false : true,
+                    onChanged: (value) {
+                      currentShift.employeeName = value;
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter employee name";
+                      } else if (!RegexPatterns.regexValidPersonName
+                          .hasMatch(value)) {
+                        return "Please enter a valid name";
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(
                     height: 5,
                   ),
                   TextFormField(
-                    controller: _controllerEmployeeEmail,
-                    decoration: const InputDecoration(
-                      labelText: 'Employee Email',
-                    ),
-                    keyboardType: TextInputType.emailAddress,
-                    maxLength: 40,
-                    initialValue: null,
-                    enabled: true,
-
-                    // inputFormatters: [],
-                    // validator: ,
-                    // onChanged: ,
-                    // onFieldSubmitted: ,
-                  ),
+                      controller: _controllerEmployeeEmail,
+                      decoration: const InputDecoration(
+                        labelText: 'Employee Email',
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      maxLength: 40,
+                      enabled: isUpdateShift ? false : true,
+                      onChanged: (value) {
+                        currentShift.employeeEmail = value;
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Please enter employee email";
+                        } else if (!RegexPatterns.regexValidEmail
+                            .hasMatch(value)) {
+                          return "Please enter a valid email";
+                        }
+                        return null;
+                      }),
                   const SizedBox(
                     height: 5,
                   ),
@@ -115,13 +120,10 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                     ),
                     keyboardType: TextInputType.number,
                     maxLength: 6,
-                    initialValue: null,
                     enabled: true,
-
-                    // inputFormatters: [],
-                    // validator: ,
-                    // onChanged: ,
-                    // onFieldSubmitted: ,
+                    onChanged: (value) {
+                      currentShift.hourlyRate = double.tryParse(value);
+                    },
                   ),
                   const SizedBox(
                     height: 5,
@@ -137,13 +139,14 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                       const SizedBox(
                         width: 10,
                       ),
-                      if (_selectedCheckInTime != null) ...[
-                        Text(
-                          _selectedCheckInTime!.toStringFormat,
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        )
-                      ],
+                      Text(
+                        _selectedCheckInTime?.asString ??
+                            (isUpdateShift
+                                ? currentShift.checkInTime ?? ''
+                                : ''),
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
                       IconButton(
                         onPressed: () async {
                           final TimeOfDay? selectedTime = await showTimePicker(
@@ -178,13 +181,14 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                         const SizedBox(
                           width: 10,
                         ),
-                        if (_selectedCheckOutTime != null) ...[
-                          Text(
-                            _selectedCheckOutTime!.toStringFormat,
-                            style: const TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
-                          )
-                        ],
+                        Text(
+                          _selectedCheckOutTime?.asString ??
+                              (isUpdateShift
+                                  ? currentShift.checkOutTime ?? ''
+                                  : ''),
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
                         IconButton(
                           onPressed: () async {
                             final TimeOfDay? selectedTime =
@@ -227,6 +231,10 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                                     message:
                                         "Time card has been deleted successfully");
                                 Navigator.pop(context);
+                              } else {
+                                showToastMessage(
+                                    type: ToastType.error,
+                                    message: "Time card deletion failed");
                               }
                             },
                             child: const Text(
@@ -241,12 +249,51 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                               backgroundColor: Colors.blue,
                               elevation: 0,
                             ),
-                            onPressed: () {
-                              // shiftsDB.addShift(workDate: dateYMD,
-                              // employeeName: employeeName,
-                              // employeeEmail: employeeEmail,
-                              // checkInTime: checkInTime
-                              // )
+                            onPressed: () async {
+                              if (_shiftDetailsFormKey.currentState!
+                                      .validate() &&
+                                  validateTime()) {
+                                currentShift
+                                  ..workDate = currentShift.workDate
+                                  ..employeeName = currentShift.employeeName
+                                  ..employeeEmail = currentShift.employeeEmail
+                                  ..hourlyRate = double.tryParse(
+                                      _controllerHourlyRate.text)
+                                  ..checkInTime =
+                                      _selectedCheckInTime?.asString ??
+                                          currentShift.checkInTime
+                                  ..checkOutTime =
+                                      _selectedCheckOutTime?.asString ??
+                                          currentShift.checkOutTime
+                                  ..hours = getDurationInHours(
+                                      inTime: _selectedCheckInTime,
+                                      outTime: _selectedCheckOutTime)
+                                  ..payment = calculatePayment();
+
+                                int result = await shiftsDB.updateShift(
+                                    shiftId: currentShift.shiftId!.toInt(),
+                                    employeeName:
+                                        '${currentShift.employeeName}',
+                                    employeeEmail:
+                                        '${currentShift.employeeEmail}',
+                                    hourlyRate: currentShift.hourlyRate,
+                                    checkInTime: currentShift.checkInTime,
+                                    checkOutTime: currentShift.checkOutTime,
+                                    hours: currentShift.hours,
+                                    payment: currentShift.payment);
+
+                                if (result > 0) {
+                                  showToastMessage(
+                                      type: ToastType.success,
+                                      message:
+                                          'Time card has been updated successfully');
+                                  Navigator.pop(context);
+                                } else {
+                                  showToastMessage(
+                                      type: ToastType.error,
+                                      message: 'Time card updating failed');
+                                }
+                              }
                             },
                             child: const Text(
                               "Update",
@@ -260,12 +307,49 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                               backgroundColor: Colors.blue,
                               elevation: 0,
                             ),
-                            onPressed: () {
-                              // shiftsDB.addShift(workDate: dateYMD,
-                              // employeeName: employeeName,
-                              // employeeEmail: employeeEmail,
-                              // checkInTime: checkInTime
-                              // )
+                            onPressed: () async {
+                              if (_shiftDetailsFormKey.currentState!
+                                      .validate() &&
+                                  validateTime()) {
+                                currentShift
+                                  ..workDate = currentShift.workDate
+                                  ..employeeName = _controllerEmployeeName.text
+                                  ..employeeEmail =
+                                      _controllerEmployeeEmail.text
+                                  ..hourlyRate = double.tryParse(
+                                      _controllerHourlyRate.text)
+                                  ..checkInTime = _selectedCheckInTime?.asString
+                                  ..checkOutTime =
+                                      _selectedCheckOutTime?.asString
+                                  ..hours = getDurationInHours(
+                                      inTime: _selectedCheckInTime,
+                                      outTime: _selectedCheckOutTime)
+                                  ..payment = calculatePayment();
+
+                                int result = await shiftsDB.addShift(
+                                    workDate: '${currentShift.workDate}',
+                                    employeeName:
+                                        '${currentShift.employeeName}',
+                                    employeeEmail:
+                                        '${currentShift.employeeEmail}',
+                                    hourlyRate: currentShift.hourlyRate,
+                                    checkInTime: currentShift.checkInTime!,
+                                    checkOutTime: currentShift.checkOutTime,
+                                    hours: currentShift.hours,
+                                    payment: currentShift.payment);
+
+                                if (result > 0) {
+                                  showToastMessage(
+                                      type: ToastType.success,
+                                      message:
+                                          'Time card has been saved successfully');
+                                  Navigator.pop(context);
+                                } else {
+                                  showToastMessage(
+                                      type: ToastType.error,
+                                      message: 'Time card saving failed');
+                                }
+                              }
                             },
                             child: const Text(
                               "Save",
@@ -289,5 +373,66 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
         backgroundColor: type == ToastType.error ? Colors.red : Colors.green,
         textColor: Colors.white,
         fontSize: 16.0);
+  }
+
+  bool validateTime() {
+    // either previously set check-in time or selectedcheckintime shouldn't be null; both cant be null at the same time
+    if (currentShift.checkInTime == null && _selectedCheckInTime == null) {
+      showToastMessage(
+          type: ToastType.error, message: "Please set check-in time");
+      return false;
+    }
+
+    //in case user just selected checkout time when editing a shift, at that time _selectedCheckInTime is null.
+    // so below is only applied when user updates shift details whithout changing check-in time.
+    // then only we have to do below.
+    if (currentShift.checkInTime != null) {
+      String checkInHour = currentShift.checkInTime!.split(":")[0];
+      String checkInMinute = currentShift.checkInTime!.split(":")[1];
+      _selectedCheckInTime ??= TimeOfDay(
+          hour: int.tryParse(checkInHour) ?? 23,
+          minute: int.tryParse(checkInMinute) ?? 59);
+    }
+
+    if (_selectedCheckOutTime != null &&
+        _selectedCheckOutTime!.compareTo(_selectedCheckInTime!) <= 0) {
+      showToastMessage(
+          type: ToastType.error,
+          message: "Check-out time can't be earlier than check-in time");
+      return false;
+    }
+
+    return true;
+  }
+
+  int? getDurationInHours({TimeOfDay? inTime, TimeOfDay? outTime}) {
+    if (inTime == null || outTime == null) return null;
+
+    double doubleInTime =
+        inTime.hour.toDouble() + (inTime.minute.toDouble() / 60);
+    double doubleOutTime =
+        outTime.hour.toDouble() + (outTime.minute.toDouble() / 60);
+
+    double timeDiff = doubleOutTime - doubleInTime;
+
+    int hr = timeDiff.truncate();
+
+    return hr > 0 ? hr : null;
+  }
+
+  double? calculatePayment() {
+    if (currentShift.hours == null || currentShift.hourlyRate == null) {
+      return null;
+    }
+
+    return (currentShift.hours! * currentShift.hourlyRate!);
+  }
+
+  @override
+  void dispose() {
+    _controllerEmployeeName.dispose();
+    _controllerEmployeeEmail.dispose();
+    _controllerHourlyRate.dispose();
+    super.dispose();
   }
 }
