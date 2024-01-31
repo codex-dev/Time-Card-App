@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:time_card_app/common/enums/form_action_enum.dart';
 import 'package:time_card_app/model/shift.dart';
-import 'package:time_card_app/shared/shift_bottom_sheet.dart';
+import 'package:time_card_app/presentation/shift_details_screen.dart';
 
 class ShiftsListItem extends StatelessWidget {
   final Shift shift;
@@ -12,7 +12,7 @@ class ShiftsListItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 221, 221, 221),
+          color: Color.fromARGB(255, 225, 225, 225),
           borderRadius: BorderRadius.circular(10)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -23,13 +23,13 @@ class ShiftsListItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                shift.employeeName,
+                shift.employeeName ?? '',
                 textAlign: TextAlign.start,
                 style:
                     const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               Text(
-                shift.employeeEmail,
+                shift.employeeEmail ?? '',
                 textAlign: TextAlign.start,
                 style: const TextStyle(
                     fontWeight: FontWeight.normal, fontSize: 16),
@@ -42,13 +42,16 @@ class ShiftsListItem extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           IconButton(
-            icon: const Icon(Icons.edit_note_outlined),
-            onPressed: () =>
-                ShiftBottomSheet.showShiftDetailsForm(context, FormAction.updateShift),
-          )
+              icon: const Icon(Icons.edit_note_outlined),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ShiftDetailsScreen(
+                            formAction: FormAction.updateShift, shift: shift)));
+              })
         ],
       ),
     );
   }
-
 }

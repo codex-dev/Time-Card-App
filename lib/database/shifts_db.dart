@@ -38,9 +38,8 @@ $_columnPayment DOUBLE
       int? hours,
       double? hourlyRate,
       double? payment}) async {
-
     final database = await DatabaseService.instance.database;
-    return await database.insert(_tableName, {
+    int result = await database.insert(_tableName, {
       _columnWorkDate: workDate,
       _columnEmployeeName: employeeName,
       _columnEmployeeEmail: employeeEmail,
@@ -53,12 +52,16 @@ $_columnPayment DOUBLE
     // rawInsert(
     // 'INSERT INTO $tableName (work_date, employee_name, employee_email, check_in_time) VALUES (?,?,?,?)',
     // [workDate, employeeName, employeeEmail, checkInTime]);
+  
+    return result;
   }
 
   Future<List<Shift>> getAllShiftsByDate({required String workDate}) async {
     final database = await DatabaseService.instance.database;
     final shifts = await database.query(_tableName,
-        where: '$_columnWorkDate = ?', whereArgs: [workDate], orderBy: _columnShiftId);
+        where: '$_columnWorkDate = ?',
+        whereArgs: [workDate],
+        orderBy: _columnShiftId);
 
     // rawQuery(
     //     'SELECT * FROM $tableName WHERE work_date=? ORDER BY shift_id ASC',
@@ -75,9 +78,8 @@ $_columnPayment DOUBLE
       int? hours,
       double? hourlyRate,
       double? payment}) async {
-
     final database = await DatabaseService.instance.database;
-    return await database.update(
+    int result = await database.update(
         _tableName,
         {
           if (employeeName != null) _columnEmployeeName: employeeName,
@@ -85,18 +87,23 @@ $_columnPayment DOUBLE
           if (checkInTime != null) _columnCheckInTime: checkInTime,
           if (checkOutTime != null) _columnCheckOutTime: checkOutTime,
           if (hours != null && hours > 0) _columnHours: hours,
-          if (hourlyRate != null && hourlyRate > 0) _columnHourlyRate: hourlyRate,
+          if (hourlyRate != null && hourlyRate > 0)
+            _columnHourlyRate: hourlyRate,
           if (payment != null && payment > 0) _columnPayment: payment
         },
         where: '$_columnShiftId = ?',
         conflictAlgorithm: ConflictAlgorithm.rollback,
         whereArgs: [shiftId]);
+
+    return result;
   }
 
-  Future<void> deleteShift(int shiftId) async {
+  Future<int> deleteShift(int shiftId) async {
     final database = await DatabaseService.instance.database;
-    await database
+    int result = await database
         .delete(_tableName, where: '$_columnShiftId = ?', whereArgs: [shiftId]);
     // .rawDelete('DELETE FROM $tableName WHERE shift_id = ?', [shiftId]);
+  
+    return result;
   }
 }

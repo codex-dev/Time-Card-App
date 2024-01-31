@@ -1,31 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:time_card_app/common/enums/form_action_enum.dart';
+import 'package:time_card_app/common/formatters/date_time_formatter.dart';
 import 'package:time_card_app/database/shifts_db.dart';
 import 'package:time_card_app/model/shift.dart';
+import 'package:time_card_app/presentation/shift_details_screen.dart';
 import 'package:time_card_app/presentation/widgets/shifts_list_item.dart';
-import 'package:time_card_app/shared/shift_bottom_sheet.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class ShiftsListScreen extends StatefulWidget {
+  const ShiftsListScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<ShiftsListScreen> createState() => _ShiftsListScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _ShiftsListScreenState extends State<ShiftsListScreen> {
+  
+  late final ShiftsDB shiftsDB;
+  
   late DateTime _selectedDate;
   late String dateYMD;
   late String dateDisplay;
-  late final ShiftsDB shiftsDB;
+
   List<Shift> listAllShifts = [];
+
   int totalHours = 0;
   double laborCost = 0;
 
   @override
   void initState() {
     super.initState();
+
     shiftsDB = ShiftsDB();
+    
     changeSelectedDate(DateTime.now());
   }
 
@@ -49,7 +55,11 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => ShiftBottomSheet.showShiftDetailsForm(context, FormAction.addShift),
+        onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ShiftDetailsScreen(
+                    formAction: FormAction.addShift, shift: Shift()))),
         child: const Icon(Icons.add),
       ),
       body: Container(
@@ -139,13 +149,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void changeSelectedDate(DateTime newDate) {
     _selectedDate = newDate;
-    dateYMD = DateFormat('yyyy/MM/dd').format(_selectedDate);
-    dateDisplay = DateFormat('E, dd MMMM yyyy').format(_selectedDate);
+
+    dateYMD = DateTimeFormatter.formatDateToString(
+        dateFormat: 'yyyy/MM/dd', date: _selectedDate);
+    dateDisplay = DateTimeFormatter.formatDateToString(
+        dateFormat: 'E, dd MMMM yyyy', date: _selectedDate);
 
     loadShiftsList();
   }
 
-  void loadShiftsList() async {
+  Future<void> loadShiftsList() async {
     totalHours = 0;
     laborCost = 0;
 
@@ -163,18 +176,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget showShiftsList() {
     if (listAllShifts.isNotEmpty) {
-      return ListView.separated(
-          scrollDirection: Axis.vertical,
-          shrinkWrap: true,
-          itemBuilder: (context, index) {
-            Shift shiftItem = listAllShifts[index];
+      return RefreshIndicator(
+        onRefresh: () => loadShiftsList(),
+        child: ListView.separated(
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              Shift shiftItem = listAllShifts[index];
 
-            return ShiftsListItem(shift: shiftItem);
-          },
-          separatorBuilder: (context, index) => const SizedBox(
-                height: 10,
-              ),
-          itemCount: listAllShifts.length);
+              return ShiftsListItem(shift: shiftItem);
+            },
+            separatorBuilder: (context, index) => const SizedBox(
+                  height: 10,
+                ),
+            itemCount: listAllShifts.length),
+      );
     }
 
     return const Text(

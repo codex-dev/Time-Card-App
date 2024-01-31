@@ -1,5 +1,8 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 class DateTimeFormatter{
-  static DateTime parseStringToDateTime({required String date, required String delimiter}) {
-    return DateTime.parse(date.replaceAll(delimiter, '-'));
+  static String formatDateToString({required String dateFormat, required DateTime date}){
+    return DateFormat(dateFormat).format(date);
   }
 }

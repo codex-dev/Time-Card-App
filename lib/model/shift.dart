@@ -1,19 +1,19 @@
 class Shift {
   int? shiftId;
-  final String workDate;
-  final String employeeName;
-  final String employeeEmail;
-  final String checkInTime;
+  String? workDate;
+  String? employeeName;
+  String? employeeEmail;
+  String? checkInTime;
   String? checkOutTime;
   int? hours;
   double? hourlyRate;
   double? payment;
 
   Shift(
-      {required this.workDate,
-      required this.employeeName,
-      required this.employeeEmail,
-      required this.checkInTime,
+      {this.workDate,
+      this.employeeName,
+      this.employeeEmail,
+      this.checkInTime,
       this.shiftId,
       this.checkOutTime,
       this.hours,
