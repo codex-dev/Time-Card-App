@@ -57,7 +57,9 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text(isUpdateShift ? AppStrings.titleTimeCardDetails : AppStrings.titleNewTimeCard),
+          title: Text(isUpdateShift
+              ? AppStrings.titleTimeCardDetails
+              : AppStrings.titleNewTimeCard),
           centerTitle: true,
         ),
         body: SingleChildScrollView(
@@ -72,6 +74,9 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                     TextFormField(
                       controller: _controllerEmployeeName,
                       decoration: const InputDecoration(
+                        hintText: "ex: John Doe",
+                        hintStyle: TextStyle(
+                            color: Color.fromARGB(255, 200, 200, 200)),
                         labelText: AppStrings.labelEmployeeName,
                       ),
                       keyboardType: TextInputType.name,
@@ -96,6 +101,9 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                     TextFormField(
                         controller: _controllerEmployeeEmail,
                         decoration: const InputDecoration(
+                          hintText: "ex: john@email.com",
+                          hintStyle: TextStyle(
+                              color: Color.fromARGB(255, 200, 200, 200)),
                           labelText: AppStrings.labelEmployeeEmail,
                         ),
                         keyboardType: TextInputType.emailAddress,
@@ -368,8 +376,7 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
     if (_selectedCheckOutTime != null &&
         _selectedCheckOutTime!.compareTo(_selectedCheckInTime!) <= 0) {
       AppToast.showMessage(
-          type: ToastType.error,
-          message: AppStrings.errorEarlyCheckOutTime);
+          type: ToastType.error, message: AppStrings.errorEarlyCheckOutTime);
       return false;
     }
 

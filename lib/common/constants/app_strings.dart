@@ -1,5 +1,4 @@
 class AppStrings{
-  static const String now = 'now';
 
   static const String titleTimeCards = 'Time Cards';
   static const String titleTimeCardDetails = 'Time Card Details';
@@ -20,7 +19,7 @@ class AppStrings{
   static const String btnSave = 'Save';
 
   static const String errorEnterEmployeeName = 'Please enter employee name';
-  static const String errorEnterValidName = 'Please enter a valid name';
+  static const String errorEnterValidName = 'Please enter a valid name (First Name & Last Name)';
   static const String errorEnterEmployeeEmail='Please enter employee email';
   static const String errorEnterValidEmail = 'Please enter a valid email';
   
