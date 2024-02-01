@@ -1,3 +1,4 @@
+import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:time_card_app/database/database_service.dart';
@@ -30,7 +31,23 @@ $_columnPayment DOUBLE
 );''');
   }
 
-  Future<int> addShift(
+  Future<Either<String, List<Shift>>> getAllShiftsByDate(
+      {required String workDate}) async {
+    try {
+      final database = await DatabaseService.instance.database;
+      final shifts = await database.query(_tableName,
+          where: '$_columnWorkDate = ?',
+          whereArgs: [workDate],
+          orderBy: _columnShiftId);
+
+      return Right(
+          shifts.map((shift) => Shift.fromSqfliteDatabase(shift)).toList());
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  Future<Either<String, int>> addShift(
       {required String workDate,
       required String employeeName,
       required String employeeEmail,
@@ -52,25 +69,14 @@ $_columnPayment DOUBLE
         if (payment != null && payment > 0) _columnPayment: payment
       });
 
-      return result;
+      return Right(result);
     } catch (e) {
       debugPrint(e.toString());
-      return 0;
+      return Left(e.toString());
     }
   }
 
-  Future<List<Shift>> getAllShiftsByDate({required String workDate}) async {
-    // TODO use Either
-    final database = await DatabaseService.instance.database;
-    final shifts = await database.query(_tableName,
-        where: '$_columnWorkDate = ?',
-        whereArgs: [workDate],
-        orderBy: _columnShiftId);
-
-    return shifts.map((shift) => Shift.fromSqfliteDatabase(shift)).toList();
-  }
-
-  Future<int> updateShift(
+  Future<Either<String,int>> updateShift(
       {required int shiftId,
       String? employeeName,
       String? employeeEmail,
@@ -97,23 +103,23 @@ $_columnPayment DOUBLE
           conflictAlgorithm: ConflictAlgorithm.rollback,
           whereArgs: [shiftId]);
 
-      return result;
+      return Right(result);
     } catch (e) {
       debugPrint(e.toString());
-      return 0;
+      return Left(e.toString());
     }
   }
 
-  Future<int> deleteShift(int shiftId) async {
+  Future<Either<String,int>> deleteShift(int shiftId) async {
     try {
       final database = await DatabaseService.instance.database;
       int result = await database.delete(_tableName,
           where: '$_columnShiftId = ?', whereArgs: [shiftId]);
 
-      return result;
+      return Right(result);
     } catch (e) {
       debugPrint(e.toString());
-      return 0;
+      return Left(e.toString());
     }
   }
 }

@@ -6,9 +6,7 @@ import 'package:time_card_app/presentation/shift_details_screen.dart';
 
 class ShiftsListItem extends StatelessWidget {
   final Shift shift;
-  final VoidCallback funcRefreshList;
-  const ShiftsListItem(
-      {super.key, required this.shift, required this.funcRefreshList});
+  const ShiftsListItem({super.key, required this.shift});
 
   @override
   Widget build(BuildContext context) {
@@ -51,8 +49,7 @@ class ShiftsListItem extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                         builder: (context) => ShiftDetailsScreen(
-                            formAction: FormAction.updateShift,
-                            shift: shift))).then((value) => funcRefreshList);
+                            formAction: FormAction.updateShift, shift: shift)));
               })
         ],
       ),
