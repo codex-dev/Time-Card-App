@@ -4,6 +4,7 @@ import 'package:time_card_app/common/constants/app_strings.dart';
 import 'package:time_card_app/common/enums/db_operation_status_enum.dart';
 import 'package:time_card_app/common/enums/form_action_enum.dart';
 import 'package:time_card_app/common/enums/toast_type_enum.dart';
+import 'package:time_card_app/common/extensions/string_extension.dart';
 import 'package:time_card_app/common/extensions/time_of_day_extension.dart';
 import 'package:time_card_app/common/regex_patterns.dart';
 import 'package:time_card_app/common/utils/time_utils.dart';
@@ -80,10 +81,10 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                         currentShift.employeeName = value;
                       },
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
+                        if (value.isNullOrEmpty) {
                           return AppStrings.errorEnterEmployeeName;
                         } else if (!RegexPatterns.regexValidPersonName
-                            .hasMatch(value)) {
+                            .hasMatch(value!)) {
                           return AppStrings.errorEnterValidName;
                         }
                         return null;
@@ -104,10 +105,10 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                           currentShift.employeeEmail = value;
                         },
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
+                          if (value.isNullOrEmpty) {
                             return AppStrings.errorEnterEmployeeEmail;
                           } else if (!RegexPatterns.regexValidEmail
-                              .hasMatch(value)) {
+                              .hasMatch(value!)) {
                             return AppStrings.errorEnterValidEmail;
                           }
                           return null;

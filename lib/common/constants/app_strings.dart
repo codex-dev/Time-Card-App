@@ -12,6 +12,8 @@ class AppStrings{
   static const String labelHourlyRate = 'Hourly Rate';
   static const String labelCheckInTime = 'Check-in Time';
   static const String labelCheckOutTime = 'Check-out Time';
+  static const String labelCheckIn = 'Check In';
+  static const String labelCheckOut = 'Check Out';
 
   static const String btnDelete = 'Delete';
   static const String btnUpdate = 'Update';
