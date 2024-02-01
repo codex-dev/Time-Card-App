@@ -1,7 +1,7 @@
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:time_card_app/common/enums/db_operation_status_enum.dart';
-import 'package:time_card_app/database/shifts_db.dart';
+import 'package:time_card_app/data/local/shifts_db.dart';
 import 'package:time_card_app/model/shift.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

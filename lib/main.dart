@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:time_card_app/presentation/shifts_list_screen.dart';
+import 'package:time_card_app/presentation/screens/shifts_list_screen.dart';
 
 void main() {
   runApp(const MyApp());

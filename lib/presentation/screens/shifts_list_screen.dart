@@ -4,10 +4,9 @@ import 'package:time_card_app/common/enums/db_operation_status_enum.dart';
 import 'package:time_card_app/common/enums/form_action_enum.dart';
 import 'package:time_card_app/common/extensions/string_extension.dart';
 import 'package:time_card_app/common/formatters/date_time_formatter.dart';
-import 'package:time_card_app/cubit/shifts_cubit.dart';
-import 'package:time_card_app/database/shifts_db.dart';
 import 'package:time_card_app/model/shift.dart';
-import 'package:time_card_app/presentation/shift_details_screen.dart';
+import 'package:time_card_app/presentation/cubit/shifts_cubit.dart';
+import 'package:time_card_app/presentation/screens/shift_details_screen.dart';
 import 'package:time_card_app/presentation/widgets/shifts_list_item.dart';
 
 class ShiftsListScreen extends StatefulWidget {
@@ -146,9 +145,7 @@ class _ShiftsListScreenState extends State<ShiftsListScreen> {
                                     ),
                                     itemCount: listAllShifts.length,
                                   )));
-                        }
-
-                        if (!state.message.isNullOrEmpty) {
+                        } else if (!state.message.isNullOrEmpty) {
                           return showShiftsInformation(
                               totalHours: totalHours,
                               laborCost: laborCost,

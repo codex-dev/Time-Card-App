@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:time_card_app/common/enums/form_action_enum.dart';
 import 'package:time_card_app/common/extensions/string_extension.dart';
 import 'package:time_card_app/model/shift.dart';
-import 'package:time_card_app/presentation/shift_details_screen.dart';
+import 'package:time_card_app/presentation/screens/shift_details_screen.dart';
 
 class ShiftsListItem extends StatelessWidget {
   final Shift shift;

@@ -1,7 +1,7 @@
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:time_card_app/database/database_service.dart';
+import 'package:time_card_app/data/local/database_service.dart';
 import 'package:time_card_app/model/shift.dart';
 
 class ShiftsDB {
