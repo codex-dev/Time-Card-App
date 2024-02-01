@@ -47,6 +47,14 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
     currentShift = widget.shift;
     isUpdateShift = widget.formAction == FormAction.updateShift;
 
+    if (currentShift.checkInTime != null) {
+      _selectedCheckInTime ??= currentShift.checkInTime.toTimeOfDay;
+    }
+
+    if (currentShift.checkOutTime != null) {
+      _selectedCheckOutTime ??= currentShift.checkOutTime.toTimeOfDay;
+    }
+
     _controllerEmployeeName =
         TextEditingController(text: currentShift.employeeName);
     _controllerEmployeeEmail =
@@ -152,10 +160,7 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                           width: 10,
                         ),
                         Text(
-                          _selectedCheckInTime?.asString ??
-                              (isUpdateShift
-                                  ? currentShift.checkInTime ?? ''
-                                  : ''),
+                          _selectedCheckInTime?.asString ?? '',
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
@@ -195,10 +200,7 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                             width: 10,
                           ),
                           Text(
-                            _selectedCheckOutTime?.asString ??
-                                (isUpdateShift
-                                    ? currentShift.checkOutTime ?? ''
-                                    : ''),
+                            _selectedCheckOutTime?.asString ?? '',
                             style: const TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.bold),
                           ),
@@ -291,11 +293,9 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                                     ..hourlyRate = double.tryParse(
                                         _controllerHourlyRate.text)
                                     ..checkInTime =
-                                        _selectedCheckInTime?.asString ??
-                                            currentShift.checkInTime
+                                        _selectedCheckInTime?.asString 
                                     ..checkOutTime =
-                                        _selectedCheckOutTime?.asString ??
-                                            currentShift.checkOutTime
+                                        _selectedCheckOutTime?.asString
                                     ..hours = TimeUtils.getDurationInHours(
                                         inTime: _selectedCheckInTime,
                                         outTime: _selectedCheckOutTime)
@@ -355,22 +355,10 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
   }
 
   bool validateTime() {
-    // either previously set check-in time or selectedcheckintime shouldn't be null; both cant be null at the same time
-    if (currentShift.checkInTime == null && _selectedCheckInTime == null) {
+    if (_selectedCheckInTime == null) {
       AppToast.showMessage(
           type: ToastType.error, message: AppStrings.errorSetCheckInTime);
       return false;
-    }
-
-    //in case user just selected checkout time when editing a shift, at that time _selectedCheckInTime is null.
-    // so below is only applied when user updates shift details whithout changing check-in time.
-    // then only we have to do below.
-    if (currentShift.checkInTime != null) {
-      String checkInHour = currentShift.checkInTime!.split(":")[0];
-      String checkInMinute = currentShift.checkInTime!.split(":")[1];
-      _selectedCheckInTime ??= TimeOfDay(
-          hour: int.tryParse(checkInHour) ?? 23,
-          minute: int.tryParse(checkInMinute) ?? 59);
     }
 
     if (_selectedCheckOutTime != null &&
