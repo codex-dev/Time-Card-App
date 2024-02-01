@@ -169,7 +169,8 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                             final TimeOfDay? selectedTime =
                                 await showTimePicker(
                                     context: context,
-                                    initialTime: TimeOfDay.now(),
+                                    initialTime:
+                                        _selectedCheckInTime ?? TimeOfDay.now(),
                                     initialEntryMode: TimePickerEntryMode.dial);
 
                             if (selectedTime != null) {
@@ -209,7 +210,8 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                               final TimeOfDay? selectedTime =
                                   await showTimePicker(
                                       context: context,
-                                      initialTime: TimeOfDay.now(),
+                                      initialTime: _selectedCheckOutTime ??
+                                          TimeOfDay.now(),
                                       initialEntryMode:
                                           TimePickerEntryMode.dial);
 
@@ -293,7 +295,7 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                                     ..hourlyRate = double.tryParse(
                                         _controllerHourlyRate.text)
                                     ..checkInTime =
-                                        _selectedCheckInTime?.asString 
+                                        _selectedCheckInTime?.asString
                                     ..checkOutTime =
                                         _selectedCheckOutTime?.asString
                                     ..hours = TimeUtils.getDurationInHours(

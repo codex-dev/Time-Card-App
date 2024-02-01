@@ -136,9 +136,12 @@ class _ShiftsListScreenState extends State<ShiftsListScreen> {
                                     scrollDirection: Axis.vertical,
                                     shrinkWrap: true,
                                     itemBuilder: (context, index) {
-                                      Shift shiftItem = listAllShifts[index];
+                                      Shift shift = listAllShifts[index];
 
-                                      return ShiftsListItem(shift: shiftItem);
+                                      return ShiftsListItem(
+                                          shift: shift,
+                                          shiftsCubit: _shiftsCubit,
+                                          workDate: dateYMD);
                                     },
                                     separatorBuilder: (context, index) =>
                                         const SizedBox(

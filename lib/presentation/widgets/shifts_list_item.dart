@@ -3,11 +3,20 @@ import 'package:time_card_app/common/constants/app_strings.dart';
 import 'package:time_card_app/common/enums/form_action_enum.dart';
 import 'package:time_card_app/common/extensions/string_extension.dart';
 import 'package:time_card_app/model/shift.dart';
+import 'package:time_card_app/presentation/cubit/shifts_cubit.dart';
 import 'package:time_card_app/presentation/screens/shift_details_screen.dart';
 
 class ShiftsListItem extends StatelessWidget {
+  const ShiftsListItem({
+    super.key,
+    required this.shift,
+    required ShiftsCubit shiftsCubit,
+    required this.workDate,
+  }) : _shiftsCubit = shiftsCubit;
+
   final Shift shift;
-  const ShiftsListItem({super.key, required this.shift});
+  final ShiftsCubit _shiftsCubit;
+  final String workDate;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +35,9 @@ class ShiftsListItem extends StatelessWidget {
               Row(
                 children: [
                   const Icon(Icons.person),
-                  const SizedBox(width: 10,),
+                  const SizedBox(
+                    width: 10,
+                  ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -54,13 +65,16 @@ class ShiftsListItem extends StatelessWidget {
                         MaterialPageRoute(
                             builder: (context) => ShiftDetailsScreen(
                                 formAction: FormAction.updateShift,
-                                shift: shift)));
+                                shift: shift))).then((value) =>
+                        _shiftsCubit.getAllShiftsForTheDay(workDate: workDate));
                   })
             ],
           ),
-          const Divider(color: Colors.black,
-          thickness: 1,
-          height: 20,),
+          const Divider(
+            color: Colors.black,
+            thickness: 1,
+            height: 20,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             mainAxisSize: MainAxisSize.max,
