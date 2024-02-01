@@ -1,5 +1,6 @@
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
+import 'package:time_card_app/common/constants/app_strings.dart';
 import 'package:time_card_app/common/enums/db_operation_status_enum.dart';
 import 'package:time_card_app/data/local/shifts_db.dart';
 import 'package:time_card_app/model/shift.dart';
@@ -22,14 +23,14 @@ class ShiftsCubit extends Cubit<ShiftsState> {
     result.fold(
         (error) => emit(state.copyWith(
             status: ShiftsStatus.error,
-            message: "Error occured while loading the Time Cards.")), (list) {
+            message: AppStrings.errorLoadingShifts)), (list) {
       if (list.isNotEmpty) {
         emit(state.copyWith(status: ShiftsStatus.success, shiftsList: list));
       } else {
         emit(state.copyWith(
             status: ShiftsStatus.success,
             shiftsList: list,
-            message: "No Time Cards found for the day."));
+            message: AppStrings.errorNoShifts));
       }
     });
   }
@@ -50,14 +51,14 @@ class ShiftsCubit extends Cubit<ShiftsState> {
     result.fold(
         (error) => emit(state.copyWith(
             status: ShiftsStatus.error,
-            message: "Time Card saving failed.")), (affectedRowCount) {
+            message: AppStrings.errorShiftSavingFailed)), (affectedRowCount) {
       if (affectedRowCount > 0) {
         emit(state.copyWith(
             status: ShiftsStatus.success,
-            message: "Time Card has been saved successfully."));
+            message: AppStrings.successShiftSaved));
       } else {
         emit(state.copyWith(
-            status: ShiftsStatus.error, message: "Time Card saving failed."));
+            status: ShiftsStatus.error, message: AppStrings.errorShiftSavingFailed));
       }
     });
   }
@@ -78,14 +79,14 @@ class ShiftsCubit extends Cubit<ShiftsState> {
     result.fold(
         (error) => emit(state.copyWith(
             status: ShiftsStatus.error,
-            message: "Time Card updating failed.")), (affectedRowCount) {
+            message: AppStrings.errorShiftUpdatingFailed)), (affectedRowCount) {
       if (affectedRowCount > 0) {
         emit(state.copyWith(
             status: ShiftsStatus.success,
-            message: "Time Card has been updated successfully."));
+            message: AppStrings.successShiftUpdated));
       } else {
         emit(state.copyWith(
-            status: ShiftsStatus.error, message: "Time Card updating failed."));
+            status: ShiftsStatus.error, message: AppStrings.errorShiftUpdatingFailed));
       }
     });
   }
@@ -98,14 +99,14 @@ class ShiftsCubit extends Cubit<ShiftsState> {
     result.fold(
         (error) => emit(state.copyWith(
             status: ShiftsStatus.error,
-            message: "Time Card deletion failed.")), (affectedRowCount) {
+            message: AppStrings.errorShiftDeletionFailed)), (affectedRowCount) {
       if (affectedRowCount > 0) {
         emit(state.copyWith(
             status: ShiftsStatus.success,
-            message: "Time Card has been deleted successfully."));
+            message: AppStrings.successShiftDeleted));
       } else {
         emit(state.copyWith(
-            status: ShiftsStatus.error, message: "Time Card deletion failed."));
+            status: ShiftsStatus.error, message: AppStrings.errorShiftDeletionFailed));
       }
     });
 

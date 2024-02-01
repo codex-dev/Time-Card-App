@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:time_card_app/common/constants/app_strings.dart';
 import 'package:time_card_app/common/enums/db_operation_status_enum.dart';
 import 'package:time_card_app/common/enums/form_action_enum.dart';
 import 'package:time_card_app/common/extensions/string_extension.dart';
@@ -60,7 +61,7 @@ class _ShiftsListScreenState extends State<ShiftsListScreen> {
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
-            title: const Text("Time Cards"),
+            title: const Text(AppStrings.titleTimeCards),
             centerTitle: true,
           ),
           floatingActionButton: FloatingActionButton(
@@ -221,7 +222,7 @@ class _ShiftsListScreenState extends State<ShiftsListScreen> {
                 color: const Color.fromARGB(255, 168, 177, 226),
                 borderRadius: BorderRadius.circular(10)),
             child: Text(
-              '$totalHours\nTotal Hours',
+              '$totalHours\n${AppStrings.labelTotalHours}',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
@@ -237,7 +238,7 @@ class _ShiftsListScreenState extends State<ShiftsListScreen> {
                 color: const Color.fromARGB(255, 168, 177, 226),
                 borderRadius: BorderRadius.circular(10)),
             child: Text(
-              '\$${laborCost.toStringAsFixed(2)}\nLabor Cost',
+              '\$${laborCost.toStringAsFixed(2)}\n${AppStrings.labelLaborCost}',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),

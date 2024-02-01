@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:time_card_app/common/constants/app_strings.dart';
 import 'package:time_card_app/common/enums/form_action_enum.dart';
 import 'package:time_card_app/common/extensions/string_extension.dart';
 import 'package:time_card_app/model/shift.dart';
@@ -38,7 +39,7 @@ class ShiftsListItem extends StatelessWidget {
             ],
           ),
           Text(
-            '${shift.checkInTime} - ${shift.checkOutTime.isNullOrEmpty ? 'now' : shift.checkOutTime}',
+            '${shift.checkInTime} - ${shift.checkOutTime.isNullOrEmpty ? AppStrings.now : shift.checkOutTime}',
             textAlign: TextAlign.start,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),

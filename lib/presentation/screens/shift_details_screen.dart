@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:time_card_app/common/constants/app_strings.dart';
 import 'package:time_card_app/common/enums/db_operation_status_enum.dart';
 import 'package:time_card_app/common/enums/form_action_enum.dart';
 import 'package:time_card_app/common/enums/toast_type_enum.dart';
@@ -55,7 +56,7 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text(isUpdateShift ? 'Time Card Details' : 'New Time Card'),
+          title: Text(isUpdateShift ? AppStrings.titleTimeCardDetails : AppStrings.titleNewTimeCard),
           centerTitle: true,
         ),
         body: SingleChildScrollView(
@@ -70,7 +71,7 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                     TextFormField(
                       controller: _controllerEmployeeName,
                       decoration: const InputDecoration(
-                        labelText: 'Employee Name',
+                        labelText: AppStrings.labelEmployeeName,
                       ),
                       keyboardType: TextInputType.name,
                       maxLength: 20,
@@ -80,10 +81,10 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Please enter employee name";
+                          return AppStrings.errorEnterEmployeeName;
                         } else if (!RegexPatterns.regexValidPersonName
                             .hasMatch(value)) {
-                          return "Please enter a valid name";
+                          return AppStrings.errorEnterValidName;
                         }
                         return null;
                       },
@@ -94,7 +95,7 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                     TextFormField(
                         controller: _controllerEmployeeEmail,
                         decoration: const InputDecoration(
-                          labelText: 'Employee Email',
+                          labelText: AppStrings.labelEmployeeEmail,
                         ),
                         keyboardType: TextInputType.emailAddress,
                         maxLength: 40,
@@ -104,10 +105,10 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Please enter employee email";
+                            return AppStrings.errorEnterEmployeeEmail;
                           } else if (!RegexPatterns.regexValidEmail
                               .hasMatch(value)) {
-                            return "Please enter a valid email";
+                            return AppStrings.errorEnterValidEmail;
                           }
                           return null;
                         }),
@@ -118,7 +119,7 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                       controller: _controllerHourlyRate,
                       decoration: const InputDecoration(
                         prefixText: '\$ ',
-                        labelText: 'Hourly Rate',
+                        labelText: AppStrings.labelHourlyRate,
                       ),
                       keyboardType: TextInputType.number,
                       maxLength: 6,
@@ -135,7 +136,7 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text(
-                          'Check-in Time    :',
+                          '${AppStrings.labelCheckInTime}    :',
                           style: TextStyle(fontSize: 16),
                         ),
                         const SizedBox(
@@ -178,7 +179,7 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Text(
-                            'Check-out Time  :',
+                            '${AppStrings.labelCheckOutTime}  :',
                             style: TextStyle(fontSize: 16),
                           ),
                           const SizedBox(
@@ -259,7 +260,7 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                                     shiftId: currentShift.shiftId!.toInt());
                               },
                               child: const Text(
-                                "Delete",
+                                AppStrings.btnDelete,
                                 style: TextStyle(
                                     fontSize: 16, color: Colors.white),
                               ),
@@ -295,7 +296,7 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                                 }
                               },
                               child: const Text(
-                                "Update",
+                                AppStrings.btnUpdate,
                                 style: TextStyle(
                                     fontSize: 16, color: Colors.white),
                               ),
@@ -331,7 +332,7 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
                                 }
                               },
                               child: const Text(
-                                "Save",
+                                AppStrings.btnSave,
                                 style: TextStyle(
                                     fontSize: 16, color: Colors.white),
                               ),
@@ -348,7 +349,7 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
     // either previously set check-in time or selectedcheckintime shouldn't be null; both cant be null at the same time
     if (currentShift.checkInTime == null && _selectedCheckInTime == null) {
       AppToast.showMessage(
-          type: ToastType.error, message: "Please set check-in time");
+          type: ToastType.error, message: AppStrings.errorSetCheckInTime);
       return false;
     }
 
@@ -367,7 +368,7 @@ class _ShiftDetailsScreenState extends State<ShiftDetailsScreen> {
         _selectedCheckOutTime!.compareTo(_selectedCheckInTime!) <= 0) {
       AppToast.showMessage(
           type: ToastType.error,
-          message: "Check-out time can't be earlier than check-in time");
+          message: AppStrings.errorEarlyCheckOutTime);
       return false;
     }
 
